@@ -24,13 +24,14 @@ export const authOptions: NextAuthOptions = {
           const user = await NguoiDung.findOne({ 
             email: credentials.email.toLowerCase(),
             trangThai: 'hoatDong'
-          }).select('+matKhau');
+          }).select('+matKhau +password');
 
           if (!user) {
             return null;
           }
 
-          const isPasswordValid = await user.comparePassword(credentials.matKhau);
+          // SỬA TẠI ĐÂY: Dùng thư viện gốc so khớp trực tiếp cả 2 trường mật khẩu để tránh lỗi hàm ẩn
+          const isPasswordValid = await compare(credentials.matKhau, user.password || user.matKhau);
 
           if (!isPasswordValid) {
             return null;
