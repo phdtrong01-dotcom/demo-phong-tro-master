@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           // SỬA TẠI ĐÂY: So sánh bằng chữ thô để bỏ qua lỗi mã hóa ký tự trên Database
-          const isPasswordValid = (plainPassword === 'admin123' || plainPassword === user.password || plainPassword === user.matKhau);
+          const isPasswordValid = (plainPassword === user.password || plainPassword === user.matKhau);
 
           if (!isPasswordValid) {
             return null;
