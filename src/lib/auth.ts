@@ -14,7 +14,11 @@ export const authOptions: NextAuthOptions = {
         matKhau: { label: 'Mật khẩu', type: 'password' }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.matKhau) {
+        // ĐỒNG BỘ TẠI ĐÂY: Nhận diện cả 'matKhau' và 'password' từ giao diện gửi lên
+        const email = credentials?.email;
+        const plainPassword = credentials?.matKhau || (credentials as any)?.password;
+
+        if (!email || !plainPassword) {
           return null;
         }
 
@@ -22,7 +26,7 @@ export const authOptions: NextAuthOptions = {
           await dbConnect();
           
           const user = await NguoiDung.findOne({ 
-            email: credentials.email.toLowerCase(),
+            email: email.toLowerCase(),
             trangThai: 'hoatDong'
           }).select('+matKhau +password');
 
@@ -30,8 +34,8 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          // SỬA TẠI ĐÂY: Dùng thư viện gốc so khớp trực tiếp cả 2 trường mật khẩu để tránh lỗi hàm ẩn
-          const isPasswordValid = await compare(credentials.matKhau, user.password || user.matKhau);
+          // Đối chiếu mật khẩu trực tiếp vào cơ sở dữ liệu
+          const isPasswordValid = await compare(plainPassword, user.password || user.matKhau);
 
           if (!isPasswordValid) {
             return null;
